@@ -15,18 +15,16 @@ class Product extends Model {
         return $sql->select("SELECT * FROM tb_products ORDER BY desproduct");
     }
 
-    public static function checkList($list){
-        
+    public static function checkList($list) {
+
         foreach ($list as &$row) {
-            
+
             $p = new Product();
             $p->setData($row);
             $row = $p->getValues();
-            
         }
-        
+
         return $list;
-        
     }
 
     public function save() {
@@ -105,14 +103,33 @@ class Product extends Model {
         }
 
         $dest = $_SERVER['DOCUMENT_ROOT'] . DIRECTORY_SEPARATOR . "res" . DIRECTORY_SEPARATOR . "site" .
-        DIRECTORY_SEPARATOR . "img" . DIRECTORY_SEPARATOR . "products" .
-        DIRECTORY_SEPARATOR . $this->getidproduct() . ".jpg";
+                DIRECTORY_SEPARATOR . "img" . DIRECTORY_SEPARATOR . "products" .
+                DIRECTORY_SEPARATOR . $this->getidproduct() . ".jpg";
 
         imagejpeg($image, $dest);
-        
+
         imagedestroy($image);
-        
+
         $this->checkPhoto();
+    }
+
+    public function getFromURL($desurl) {
+
+        $sql = new Sql();
+
+        $rows = $sql->select("SELECT * FROM tb_products WHERE desurl = :desurl LIMIT 1", [
+            ':desurl' => $desurl
+        ]);
+
+        $this->setData($rows[0]);
+    }
+
+    public function getCategories() {
+        $sql = new Sql();
+        return $sql->select("SELECT * FROM tb_categories a INNER JOIN tb_productscategories b ON a.idcategory = b.idcategory"
+                        . " WHERE b.idproduct = :idproduct", [
+                    ':idproduct' => $this->getidproduct()
+        ]);
     }
 
 }
