@@ -28,7 +28,7 @@
             <div class="col-md-3 col-sm-6">
                 <div class="footer-menu">
                     <h2 class="footer-wid-title">Categorias</h2>
-                        <?php require $this->checkTemplate("categories-menu");?>
+                    <?php require $this->checkTemplate("categories-menu");?>
                 </div>
             </div>
 
@@ -90,3 +90,8 @@
 <script type="text/javascript" src="res/site/js/script.slider.js"></script>
 </body>
 </html>
+<style>
+    li{
+        list-style: none;
+    }
+</style>
