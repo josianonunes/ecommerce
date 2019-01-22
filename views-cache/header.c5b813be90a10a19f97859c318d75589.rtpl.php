@@ -48,7 +48,6 @@
                                 <?php }else{ ?>
                                 <li><a href="/profile"><i class="fa fa-user"></i> <?php echo getUserName(); ?></a></li>
                                 <li><a href="/logout"><i class="fa fa-lock"></i> Sair</a></li>
-
                                 <?php } ?>
                             </ul>
                         </div>
