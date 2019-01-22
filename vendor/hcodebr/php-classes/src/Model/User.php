@@ -11,6 +11,7 @@ class User extends Model {
     const SESSION = "User";
     const SECRET = "HcodePhp7_Secret";
     const ERROR = "UserError";
+    const ERROR_REGISTER = "UserErrorRegister";
 
     public static function getFromSession() {
         $user = new User();
@@ -78,17 +79,20 @@ class User extends Model {
         return $sql->select("SELECT * FROM tb_users a INNER JOIN tb_persons b USING(idperson) ORDER BY b.desperson");
     }
 
-    public function save() {
+    public function save() { //Cria um novo usuário no Banco de Dados
         $sql = new Sql();
-        $results = $sql->select("CALL sp_users_save(:desperson, :deslogin, :despassword, :desemail, :nrphone, :inadmin)", array(
-            ":desperson" => $this->getdesperson(),
+
+        $results = $sql->select("CALL sp_users_save(:desperson, :deslogin, :despassword, :desemail, :nrphone, :desinadmin)", array(
+            ":desperson" => utf8_encode($this->getdesperson()),
             ":deslogin" => $this->getdeslogin(),
-            ":despassword" => $this->getdespassword(),
+            ":despassword" => User::getPasswordHash($this->getdespassword()),
             ":desemail" => $this->getdesemail(),
             ":nrphone" => $this->getnrphone(),
-            ":inadmin" => $this->getinadmin()
+            ":desinadmin" => $this->getinadmin()
         ));
-        $this->setData($results[0]);
+
+        $data = $results[0];
+        $this->setData($data);
     }
 
     public function get($iduser) {
@@ -205,6 +209,42 @@ class User extends Model {
 
     public static function clearError() {
         $_SESSION[User::ERROR] = NULL;
+    }
+
+    public static function setErrorRegister($msg) {
+
+        $_SESSION[User::ERROR_REGISTER] = $msg;
+    }
+
+    public static function getErrorRegister() {
+
+        $msg = (isset($_SESSION[User::ERROR_REGISTER]) && $_SESSION[User::ERROR_REGISTER]) ? $_SESSION[User::ERROR_REGISTER] : '';
+
+        User::clearErrorRegister();
+
+        return $msg;
+    }
+
+    public static function clearErrorRegister() {
+
+        $_SESSION[User::ERROR_REGISTER] = NULL;
+    }
+
+    public static function checkLoginExist($login) {
+
+        $sql = new Sql();
+
+        $results = $sql->select("SELECT * FROM tb_users WHERE deslogin = :deslogin", [
+            ':deslogin' => $login
+        ]);
+
+        return (count($results) > 0);
+    }
+
+    public static function getPasswordHash($password) {
+        return password_hash($password, PASSWORD_DEFAULT, [
+            'cost' => 12
+        ]);
     }
 
 }
