@@ -88,7 +88,7 @@ $app->post("/admin/forgot/reset", function() {
 
     $user->get((int) $forgot["iduser"]);
 
-    $password = password_hash($_POST["password"], PASSWORD_DEFAULT, [
+    $password = password_hash($_POST['password'], PASSWORD_DEFAULT, [
         "cost" => 12
     ]);
 
@@ -99,5 +99,5 @@ $app->post("/admin/forgot/reset", function() {
         "footer" => false
     ]);
 
-    $page->setTpl("forgot-reset-sucess");
+    $page->setTpl("forgot-reset-success");
 });
