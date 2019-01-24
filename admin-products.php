@@ -5,6 +5,7 @@ use \Hcode\Model\User;
 use \Hcode\Model\Product;
 
 $app->get("/admin/products", function() {
+    
     User::verifyLogin();
 
     $search = (isset($_GET['search'])) ? $_GET['search'] : '';
@@ -28,8 +29,6 @@ $app->get("/admin/products", function() {
             'text' => $x + 1
         ]);
     }
-
-    $products = Product::listAll();
 
     $page = new PageAdmin();
 

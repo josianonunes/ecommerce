@@ -7,7 +7,7 @@ use \Hcode\Model;
 use \Hcode\Model\Cart;
 
 class Order extends Model {
-    
+
     const SUCCESS = "Order-Success";
     const ERROR = "Order-Error";
 
@@ -107,6 +107,54 @@ class Order extends Model {
 
     public static function clearSuccess() {
         $_SESSION[Order::SUCCESS] = NULL;
+    }
+
+    public static function getPage($page = 1, $itemsPerPage = 10) {
+        $start = ($page - 1) * $itemsPerPage;
+
+        $sql = new Sql();
+
+        $results = $sql->select("SELECT SQL_CALC_FOUND_ROWS *"
+                . " FROM tb_orders a INNER JOIN tb_ordersstatus b USING(idstatus)"
+                . " INNER JOIN tb_carts c USING(idcart)"
+                . " INNER JOIN tb_users d ON d.iduser = a.iduser"
+                . " INNER JOIN tb_addresses e USING(idaddress)"
+                . " INNER JOIN tb_persons f ON f.idperson = d.idperson"
+                . " ORDER BY a.dtregister"
+                . " DESC LIMIT $start, $itemsPerPage;");
+
+        $resultTotal = $sql->select("SELECT FOUND_ROWS() AS nrtotal;");
+        return [
+            'data' => $results,
+            'total' => (int) $resultTotal[0]["nrtotal"],
+            'pages' => ceil($resultTotal[0]["nrtotal"] / $itemsPerPage)
+        ];
+    }
+
+    public static function getPageSearch($search, $page = 1, $itemsPerPage = 10) {
+        $start = ($page - 1) * $itemsPerPage;
+
+        $sql = new Sql();
+
+        $results = $sql->select("SELECT SQL_CALC_FOUND_ROWS *"
+                . " FROM tb_orders a INNER JOIN tb_ordersstatus b USING(idstatus)"
+                . " INNER JOIN tb_carts c USING(idcart)"
+                . " INNER JOIN tb_users d ON d.iduser = a.iduser"
+                . " INNER JOIN tb_addresses e USING(idaddress)"
+                . " INNER JOIN tb_persons f ON f.idperson = d.idperson"
+                . " WHERE a.idorder = :id OR f.desperson LIKE :search"
+                . " ORDER BY a.dtregister"
+                . " LIMIT $start, $itemsPerPage;", [
+            ':search' => '%' . $search . '%',
+            ':id' => $search,
+        ]);
+
+        $resultTotal = $sql->select("SELECT FOUND_ROWS() AS nrtotal;");
+        return [
+            'data' => $results,
+            'total' => (int) $resultTotal[0]["nrtotal"],
+            'pages' => ceil($resultTotal[0]["nrtotal"] / $itemsPerPage)
+        ];
     }
 
 }
