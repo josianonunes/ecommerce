@@ -9,12 +9,36 @@ $app->get("/admin/categories", function() {
 
     User::verifyLogin();
 
+    $search = (isset($_GET['search'])) ? $_GET['search'] : '';
+    $page = (isset($_GET['page'])) ? (int) $_GET['page'] : 1;
+
+    if ($search != '') {
+        $pagination = Category::getPageSearch($search, $page);
+    } else {
+        $pagination = Category::getPage($page);
+    }
+
+    $pages = [];
+
+    for ($x = 0; $x < $pagination['pages']; $x++) {
+
+        array_push($pages, [
+            'href' => '/admin/categories?' . http_build_query([
+                'page' => $x + 1,
+                'search' => $search
+            ]),
+            'text' => $x + 1
+        ]);
+    }
+
     $categories = Category::listAll();
 
     $page = new PageAdmin();
 
     $page->setTpl("categories", [
-        "categories" => $categories
+        "categories" => $pagination['data'],
+        'search' => $search,
+        'pages' => $pages
     ]);
 });
 
@@ -112,16 +136,15 @@ $app->get("/admin/categories/:idcategory/products/:idproduct/add", function($idc
     $category = new Category();
 
     $category->get((int) $idcategory);
-    
+
     $product = new Product();
-    
-    $product->get((int)$idproduct);
-    
+
+    $product->get((int) $idproduct);
+
     $category->addProduct($product);
-    
-    header("Location: /admin/categories/".$idcategory."/products");
+
+    header("Location: /admin/categories/" . $idcategory . "/products");
     exit;
-    
 });
 
 $app->get("/admin/categories/:idcategory/products/:idproduct/remove", function($idcategory, $idproduct) {
@@ -131,14 +154,13 @@ $app->get("/admin/categories/:idcategory/products/:idproduct/remove", function($
     $category = new Category();
 
     $category->get((int) $idcategory);
-    
+
     $product = new Product();
-    
-    $product->get((int)$idproduct);
-    
+
+    $product->get((int) $idproduct);
+
     $category->removeProduct($product);
-    
-    header("Location: /admin/categories/".$idcategory."/products");
+
+    header("Location: /admin/categories/" . $idcategory . "/products");
     exit;
-    
 });
