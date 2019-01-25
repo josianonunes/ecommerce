@@ -269,7 +269,7 @@ $app->get("/order/:idorder/pagseguro", function($idorder) {
     $order->get((int) $idorder);
 
     $cart = $order->getCart();
-
+    
     $page = new Page([
         'header' => false,
         'footer' => false
