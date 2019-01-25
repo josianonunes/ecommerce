@@ -13,8 +13,6 @@ class Address extends Model {
 
         $cep = str_replace("-", "", $nrcep);
 
-        //https://viacep.com.br/ws/01001000/json/
-
         $ch = curl_init();
 
         curl_setopt($ch, CURLOPT_URL, "https://viacep.com.br/ws/$cep/json/");
@@ -49,13 +47,12 @@ class Address extends Model {
 
         $sql = new Sql();
 
-
-
-        $results = $sql->select("CALL sp_addresses_save(:idaddress, :idperson, :desaddress, :descomplement, :descity, :desstate,"
-                . " :descountry, :deszipcode, :desdistrict)", [
+        $results = $sql->select("CALL sp_addresses_save(:idaddress, :idperson, :desaddress, :desnumber, :descomplement, :descity,"
+                . " :desstate, :descountry, :deszipcode, :desdistrict)", [
             ':idaddress' => $this->getidaddress(),
             ':idperson' => $this->getidperson(),
             ':desaddress' => utf8_decode($this->getdesaddress()),
+            ':desnumber' => $this->getdesnumber(),
             ':descomplement' => utf8_decode($this->getdescomplement()),
             ':descity' => utf8_decode($this->getdescity()),
             ':desstate' => $this->getdesstate(),
